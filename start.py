@@ -6,7 +6,7 @@ import webbrowser
 import threading
 import http.server
 import socketserver
-from ytmusicapi import YTMusic
+from ytmusicapi import OAuthCredentials, YTMusic
 import xml.etree.ElementTree as ET
 from dotenv import load_dotenv, set_key
 from datetime import datetime, timedelta
@@ -86,7 +86,14 @@ class Process:
             raise Exception(e)
 
     def execute(self):
-        ytmusic = YTMusic("browser.json")
+        # ytmusic = YTMusic("oauth.json")
+        ytmusic = YTMusic(
+            "oauth.json",
+            oauth_credentials=OAuthCredentials(
+                client_id=os.environ["GOOGLE_CLIENT_ID"],
+                client_secret=os.environ["GOOGLE_CLIENT_SECRET"],
+            ),
+        )
 
         if not self.session:
             token = self.get_token()
