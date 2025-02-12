@@ -38,7 +38,15 @@ uv run ytmusicapi oauth
 uv run start.py
 ```
 
+### Using SQLite for tracking scrobbled songs
+
+The YTMusic Last.fm Scrobbler uses a SQLite database to keep track of the
+songs that have already been scrobbled to Last.fm. This prevents the same
+songs from being repeatedly sent as scrobbles in subsequent runs of the
+script.
+
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more information.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE)
+file for more information.
 
