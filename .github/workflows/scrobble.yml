@@ -1,0 +1,95 @@
+name: Daily YTMusic Scrobbling
+
+on:
+  schedule:
+    # Runs at 12:00 UTC (adjust this time as needed)
+    - cron: '0 12 * * *'
+  workflow_dispatch:  # Allows manual triggering of the workflow
+
+jobs:
+  scrobble:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install uv
+        uv pip install ytmusicapi lastpy python-dotenv
+    
+    - name: Restore cache
+      uses: actions/cache/restore@v3
+      with:
+        path: |
+          data.db
+          oauth.json
+        key: ${{ runner.os }}-ytmusic-data
+    
+    - name: Create .env file
+      run: |
+        echo "LAST_FM_API=${{ secrets.LAST_FM_API }}" >> .env
+        echo "LAST_FM_API_SECRET=${{ secrets.LAST_FM_API_SECRET }}" >> .env
+        echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" >> .env
+        echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}" >> .env
+        echo "LASTFM_SESSION=${{ secrets.LASTFM_SESSION }}" >> .env
+    
+    - name: Create oauth.json if not exists
+      run: |
+        if [ ! -f oauth.json ]; then
+          echo '${{ secrets.OAUTH_JSON }}' > oauth.json
+        fi
+    
+    - name: Run scrobbler
+      id: scrobbler
+      run: python start.py
+      
+    - name: Save cache
+      uses: actions/cache/save@v3
+      with:
+        path: |
+          data.db
+          oauth.json
+        key: ${{ runner.os }}-ytmusic-data
+
+    - name: Create GitHub Issue on Failure
+      if: failure()
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const date = new Date().toISOString();
+          await github.rest.issues.create({
+            owner: context.repo.owner,
+            repo: context.repo.owner,
+            title: `🚨 YTMusic Scrobbler Failed - ${date}`,
+            body: `The YTMusic Scrobbler script failed to run successfully.
+                  
+            **Workflow Run:** [View Run Details](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})
+            
+            Please check the workflow logs for more details about the failure.`
+          });
+
+    - name: Send Email Notification on Failure
+      if: failure()
+      uses: dawidd6/action-send-mail@v3
+      with:
+        server_address: smtp.gmail.com
+        server_port: 465
+        username: ${{ secrets.EMAIL_USERNAME }}
+        password: ${{ secrets.EMAIL_PASSWORD }}
+        subject: "🚨 YTMusic Scrobbler Failed"
+        body: |
+          The YTMusic Scrobbler script failed to run successfully.
+          
+          Time: ${{ github.event.head_commit.timestamp }}
+          Workflow Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          
+          Please check the workflow logs for more details about the failure.
+        to: ${{ secrets.NOTIFICATION_EMAIL }}
+        from: YTMusic Scrobbler
