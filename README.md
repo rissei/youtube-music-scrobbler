@@ -40,7 +40,9 @@ uv run start.py
 
 ## Automation
 
-1. Run the script once locally to retrieve your Last.fm session key:
+1. Fork this repository (or clone if you want it private)
+
+2. Run the script once locally to retrieve your Last.fm session key:
 
 ```sh
 uv run start.py
@@ -48,7 +50,7 @@ uv run start.py
 
 This will generate oauth.json and output your Last.fm session key, which you’ll need for automation.
 
-2. Add the following secrets under "Settings > Secrets and Variables > Actions > Repository Secrets" in your GitHub repository:
+3. Add the following secrets under "Settings > Secrets and Variables > Actions > Repository Secrets" in your GitHub repository:
 
 ```sh
 LAST_FM_API=...
@@ -59,7 +61,7 @@ LASTFM_SESSION=...
 OAUTH_JSON=...  (Paste the entire contents of oauth.json as a single secret)
 ```
 
-3. Enable GitHub Actions in your repository settings. Once set up, GitHub Actions will run the script daily at 1:00 AM UTC or manually via the “Run workflow” button.
+4. Enable GitHub Actions in your repository settings. Once set up, GitHub Actions will run the script daily at 1:00 AM UTC or manually via the “Run workflow” button.
 
 Note: running this workflow on GitHub’s servers counts toward your GitHub Actions usage limits. If you fork this repository or enable the workflow on your own repo, be aware that excessive runs may consume your free GitHub Actions minutes or lead to rate limits.
 
