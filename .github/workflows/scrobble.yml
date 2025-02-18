@@ -22,7 +22,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install uv
-        uv pip install ytmusicapi lastpy python-dotenv
+        uv pip install --system ytmusicapi lastpy python-dotenv
     
     - name: Restore cache
       uses: actions/cache/restore@v3
@@ -47,9 +47,8 @@ jobs:
         fi
     
     - name: Run scrobbler
-      id: scrobbler
       run: python start.py
-      
+    
     - name: Save cache
       uses: actions/cache/save@v3
       with:
@@ -57,39 +56,3 @@ jobs:
           data.db
           oauth.json
         key: ${{ runner.os }}-ytmusic-data
-
-    - name: Create GitHub Issue on Failure
-      if: failure()
-      uses: actions/github-script@v6
-      with:
-        script: |
-          const date = new Date().toISOString();
-          await github.rest.issues.create({
-            owner: context.repo.owner,
-            repo: context.repo.owner,
-            title: `🚨 YTMusic Scrobbler Failed - ${date}`,
-            body: `The YTMusic Scrobbler script failed to run successfully.
-                  
-            **Workflow Run:** [View Run Details](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})
-            
-            Please check the workflow logs for more details about the failure.`
-          });
-
-    - name: Send Email Notification on Failure
-      if: failure()
-      uses: dawidd6/action-send-mail@v3
-      with:
-        server_address: smtp.gmail.com
-        server_port: 465
-        username: ${{ secrets.EMAIL_USERNAME }}
-        password: ${{ secrets.EMAIL_PASSWORD }}
-        subject: "🚨 YTMusic Scrobbler Failed"
-        body: |
-          The YTMusic Scrobbler script failed to run successfully.
-          
-          Time: ${{ github.event.head_commit.timestamp }}
-          Workflow Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          
-          Please check the workflow logs for more details about the failure.
-        to: ${{ secrets.NOTIFICATION_EMAIL }}
-        from: YTMusic Scrobbler
