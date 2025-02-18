@@ -2,7 +2,7 @@
 
 The YTMusic Last.fm Scrobbler is a Python script that allows you to fetch
 your YouTube Music listening history from the last 24 hours and scrobble
-it to Last.fm.
+it to Last.fm. With the added automation, you can now run the script automatically using GitHub Actions. This means your listening history will be fetched and scrobbled to Last.fm on a schedule, without needing to run the script manually on your local machine.
 
 ## Setup
 
@@ -37,6 +37,29 @@ uv run ytmusicapi oauth
 ```sh
 uv run start.py
 ```
+
+## Automation
+
+1. Run the script once locally to retrieve your Last.fm session key:
+
+```sh
+uv run start.py
+```
+
+This will generate oauth.json and output your Last.fm session key, which you’ll need for automation.
+
+2. Add the following secrets under "Settings > Secrets and Variables > Actions > Repository Secrets" in your GitHub repository:
+
+```sh
+LAST_FM_API=...
+LAST_FM_API_SECRET=...
+GOOGLE_CLIENT_ID=...
+GOOGLE_CLIENT_SECRET=...
+LASTFM_SESSION=...
+OAUTH_JSON=...  (Paste the entire contents of oauth.json as a single secret)
+```
+
+3. Enable GitHub Actions in your repository settings. Once set up, GitHub Actions will run the script daily at 1:00 AM UTC or manually via the “Run workflow” button.
 
 ### Using SQLite for tracking scrobbled songs
 
