@@ -61,6 +61,8 @@ OAUTH_JSON=...  (Paste the entire contents of oauth.json as a single secret)
 
 3. Enable GitHub Actions in your repository settings. Once set up, GitHub Actions will run the script daily at 1:00 AM UTC or manually via the “Run workflow” button.
 
+Note: running this workflow on GitHub’s servers counts toward your GitHub Actions usage limits. If you fork this repository or enable the workflow on your own repo, be aware that excessive runs may consume your free GitHub Actions minutes or lead to rate limits.
+
 ### Using SQLite for tracking scrobbled songs
 
 The YTMusic Last.fm Scrobbler uses a SQLite database to keep track of the
