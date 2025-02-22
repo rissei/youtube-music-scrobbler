@@ -24,6 +24,7 @@ LAST_FM_API=...
 LAST_FM_API_SECRET=...
 GOOGLE_CLIENT_ID=...
 GOOGLE_CLIENT_SECRET=...
+LAST_FM_USERNAME=...
 ```
 
 5. Use `ytmusicapi` to authenticate with Youtube Music by running
@@ -63,7 +64,21 @@ OAUTH_JSON=...  (Paste the entire contents of oauth.json as a single secret)
 
 4. Enable GitHub Actions in your repository settings. Once set up, GitHub Actions will run the script daily at 1:00 AM UTC or manually via the “Run workflow” button.
 
+# How It Works
+## Determining the Time Window:
+The script checks the last_run table for the last successful run timestamp. If found, it uses that timestamp to define the start of the period to process; otherwise, it defaults to the last 24 hours.
+
+## Fetching Histories:
+It retrieves your complete YouTube Music history and uses the Last.fm API to fetch scrobbles within the same time window. This allows the script to detect any tracks that have not yet been scrobbled to Last.fm.
+
+## Comparing and Scrobbling:
+The script compares the YouTube Music history with the fetched Last.fm tracks. Only those tracks that are missing from Last.fm are processed. It then scrobbles these missing tracks while spacing them out naturally (e.g., a few minutes apart) to reflect your actual listening timeline.
+
+## Logging and Updating:
+Detailed logs record the progress and outcome of each operation, and the last_run timestamp is updated after a successful run. This ensures the next execution processes only new listening activity.
+
 Note: running this workflow on GitHub’s servers counts toward your GitHub Actions usage limits. If you fork this repository or enable the workflow on your own repo, be aware that excessive runs may consume your free GitHub Actions minutes or lead to rate limits.
+
 
 ### Using SQLite for tracking scrobbled songs
 
